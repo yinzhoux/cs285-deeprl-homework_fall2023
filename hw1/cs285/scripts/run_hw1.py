@@ -66,7 +66,7 @@ def run_training_loop(params):
     env.reset(seed=seed)
 
     # Maximum length for episodes
-    params['ep_len'] = params['ep_len'] or env.spec.max_episode_steps
+    params['ep_len'] = params['ep_len'] or env.spec.max_episode_steps # truncation
     MAX_VIDEO_LEN = params['ep_len']
 
     assert isinstance(env.action_space, gym.spaces.Box), "Environment must be continuous"
@@ -157,8 +157,10 @@ def run_training_loop(params):
           # HINT2: use np.random.permutation to sample random indices
           # HINT3: return corresponding data points from each array (i.e., not different indices from each array)
           # for imitation learning, we only need observations and actions.  
-          ob_batch, ac_batch = TODO
+          path_len = len(replay_buffer)
+          indices = np.random.permutation(path_len)[:params['train_batch_size']]
 
+          ob_batch, ac_batch = ptu.from_numpy(replay_buffer.obs[indices]), ptu.from_numpy(replay_buffer.acs[indices])
           # use the sampled data to train an agent
           train_log = actor.update(ob_batch, ac_batch)
           training_logs.append(train_log)
@@ -172,6 +174,7 @@ def run_training_loop(params):
                 env, actor, MAX_NVIDEO, MAX_VIDEO_LEN, True)
 
             # save videos
+            assert eval_video_paths is not None
             if eval_video_paths is not None:
                 logger.log_paths_as_videos(
                     eval_video_paths, itr,
