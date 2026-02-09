@@ -1,0 +1,59 @@
+\documentclass[name=Jianxun\ Zhou, andrewid=zhou-jx23, course=cs285, num=1]{homework}
+
+\usepackage{hw-shortcuts}
+\begin{document}
+    
+\problem{1.1}
+\begin{proof}
+    By the defintion of total variation distance, we have
+    $$
+    \Sigma_{s_{t}}|p_{\pi_{\theta}}(s_t) - p_{\pi^\star}(s_t)| = 2\times d_{TV}(p_{\pi_\theta}, p_{\pi^\star})
+    $$
+    Let $M_i$ denotes the event the learned policy $\pi_{\theta}$ makes a mistake at step i and makes no mistake in i-1 steps.
+    Let $E_t$ denotes the event the learned policy $\pi_{\theta}$ makes at least one mistake in t steps.
+    It follows that 
+    $$
+    Pr(E_t) = Pr(\bigcup_{i=0...t} (M_i)) \leq \bigcup_{i=0...t} Pr(M_i) \leq \bigcup_{i=0...T}Pr(M_i) \leq T\epsilon
+    $$
+    By the coupling lemma, the distance of state distributions at time t is bounded by the probability of the two trajectories have diverged by that time:
+    $$
+    d_{TV}(p_{\pi_\theta}, p_{\pi^\star}) \leq Pr(E_t) \leq T\epsilon
+    $$
+    Hence
+    $$
+    \Sigma_{s_{t}}|p_{\pi_{\theta}}(s_t) - p_{\pi^\star}(s_t)| \leq 2T\epsilon
+    $$
+    as we desired.
+\end{proof}
+\problem{1.2.a}
+\begin{proof}
+    Let S denotes the entire state set .
+    \begin{align*}
+        |J(\pi^\star) - J(\pi_\theta)| = & |E_{p_{\pi^\star}(s_T)}r(s_T) - E_{p_{\pi_\theta}(s_T)}r(s_T)| \\
+        = & |\Sigma_{s_T \in S}(p_{\pi^\star}(s_T) - p_{\pi_\theta}(s_T)) \times r(s_T)| \\
+        \leq & max(r(s_T)) \times |p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)|
+    \end{align*}
+    Recalled that $p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t) \leq 2T\epsilon$.
+    It follows that $|J(\pi^\star) - J(\pi_\theta)| \leq R_{max}\times 2T\epsilon$.
+    
+    Hence 
+    $$
+        J(\pi^\star) - J(\pi_\theta) = \mathcal{O} (T\epsilon)
+    $$
+    as we desired.
+\end{proof}
+\problem{1.2.b}
+\begin{proof}
+    \begin{align*}
+    |J(\pi^\star) - J(\pi_\theta)| =& |\Sigma_{t=1}^{T}\Sigma(r(s_t)\times(p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)))| \\
+    \leq& \Sigma_{t=1}^{T}R_{max}|p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)| \\
+    \leq& T\times R_{max} \times 2T\epsilon
+    \end{align*}
+    Hence
+    $$
+    J(\pi^\star) - J(\pi_\theta) = \mathcal{O}(T^2\epsilon)
+    $$
+    as we desired.
+\end{proof}
+
+\end{document}
