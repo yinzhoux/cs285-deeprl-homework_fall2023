@@ -261,7 +261,10 @@ def main():
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data')
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
-    logdir = logdir_prefix + args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
+    # logdir = logdir_prefix + args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
+    logdir = logdir_prefix + args.exp_name + '_' + args.env_name + '_' + str(args.n_layers) + '_' + str(args.size) + '_' + str(args.n_iter) + '-' + str(args.eval_batch_size) + '-' + str(args.train_batch_size)
+    if args.video_log_freq == 1:
+        logdir += '_video'
     logdir = os.path.join(data_path, logdir)
     params['logdir'] = logdir
     if not(os.path.exists(logdir)):

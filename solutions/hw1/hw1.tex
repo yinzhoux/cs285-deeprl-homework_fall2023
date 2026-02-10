@@ -1,6 +1,9 @@
 \documentclass[name=Jianxun\ Zhou, andrewid=zhou-jx23, course=cs285, num=1]{homework}
 
 \usepackage{hw-shortcuts}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
 \begin{document}
     
 \problem{1.1}
@@ -56,4 +59,51 @@
     as we desired.
 \end{proof}
 
+\problem{2}
+No Problem.
+\problem{3.1}
+Both \textbf{Ant-v4} and \textbf{Hopper-v4} are train with n-layers=2\&net-size=64\&eval-batch-size=10000 and others kept default.
+Their performance ratios compared to expert are as follows.
+
+\begin{table}[H]
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+environment&avg.ret&std.ret&avg.ret.exp&perf ratio \\
+\midrule
+\textbf{Ant-v4}&4430&780.6&4682&94.62\% \\
+\textbf{Hopper-v4}&1098&7.242&3718&29.53\% \\
+\bottomrule
+\end{tabularx}
+\caption{\textbf{Ant-v4} vs. \textbf{Hopper-v4}}
+\end{table}  
+\problem{3.2}
+Varing \textbf{training batch size} from 100 to 1000 with step size 100, we get the performance-batch\_size graph[\ref{fig:bc_trend}] of environment \textbf{Hopper-v4}.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXXX}
+        \toprule
+        train\_batch\_size & avg. ret & std. ret & avg. ret. exp & perf ratio \\
+        \midrule
+        100  & 1099   & 12.6   & 3718 & 29.56\% \\
+        200  & 1199   & 26.82  & 3718 & 32.25\% \\
+        300  & 869.3  & 34.59  & 3718 & 23.38\% \\
+        400  & 1221   & 21.77  & 3718 & 32.84\% \\
+        500  & 1349   & 149.1  & 3718 & 36.28\% \\
+        600  & 1727   & 381.1  & 3718 & 46.45\% \\
+        700  & 1308   & 54.33  & 3718 & 35.18\% \\
+        800  & 1505   & 302.5  & 3718 & 40.48\% \\
+        900  & 1501   & 439.6  & 3718 & 40.37\% \\
+        1000 & 1333   & 87.06  & 3718 & 35.85\% \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Behavioral Cloning Performance About Training Batch Size On Hopper-v4}
+\end{table}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./bc_trend.png}
+    \small{\caption{Performance About \textbf{Training Batch Size} On Hopper-v4}}
+    \label{fig:bc_trend}
+\end{figure}
+
+\problem{4.1}
 \end{document}
