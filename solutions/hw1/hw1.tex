@@ -4,6 +4,7 @@
 \usepackage{tabularx}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{subcaption}
 \begin{document}
     
 \problem{1.1}
@@ -77,7 +78,7 @@ environment&avg.ret&std.ret&avg.ret.exp&perf ratio \\
 \caption{\textbf{Ant-v4} vs. \textbf{Hopper-v4}}
 \end{table}  
 \problem{3.2}
-Varing \textbf{training batch size} from 100 to 1000 with step size 100, we get the performance-batch\_size graph[\ref{fig:bc_trend}] of environment \textbf{Hopper-v4}.
+Varing \textbf{training batch size} from 100 to 1000 with step size 100, we get the performance vs. batch\_size graph[\ref{fig:bc_trend}] of environment \textbf{Hopper-v4}.
 \begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{lXXXX}
@@ -96,14 +97,28 @@ Varing \textbf{training batch size} from 100 to 1000 with step size 100, we get 
         1000 & 1333   & 87.06  & 3718 & 35.85\% \\
         \bottomrule
     \end{tabularx}
-    \caption{Behavioral Cloning Performance About Training Batch Size On Hopper-v4}
+    \caption{Behavioral Cloning Performance Varying Training Batch Size On Hopper-v4}
 \end{table}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{./bc_trend.png}
-    \small{\caption{Performance About \textbf{Training Batch Size} On Hopper-v4}}
+    \includegraphics[width=0.8\textwidth]{./images/bc_trend_hopper.png}
+    \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Batch Size} On \textbf{Hopper-v4}\\(size=64\&n\_layers=2\&eval\_batch\_size=10000)}
     \label{fig:bc_trend}
 \end{figure}
 
 \problem{4.1}
+\begin{figure}[H]
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/hopper_dagger.png}
+        \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Step} On \textbf{Hopper-v4}(size=64\&n\_layers=2\&eval\_batch\_size=10000)}
+        \label{fig:hopper_dagger}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/ant_dagger.png}
+        \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Step} On \textbf{Ant-v4}(size=64\&n\_layers=2\&eval\_batch\_size=10000)}
+        \label{fig:ant_dagger}
+    \end{subfigure}
+\end{figure}
 \end{document}
