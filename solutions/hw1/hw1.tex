@@ -1,4 +1,4 @@
-\documentclass[name=Jianxun\ Zhou, andrewid=zhou-jx23, course=cs285, num=1]{homework}
+\documentclass[name={Jianxun Zhou}, andrewid={zhou-jx23}, course={cs285}, num={1}]{homework}
 
 \usepackage{hw-shortcuts}
 \usepackage{tabularx}
@@ -6,7 +6,7 @@
 \usepackage{float}
 \usepackage{subcaption}
 \begin{document}
-    
+
 \problem{1.1}
 \begin{proof}
     By the defintion of total variation distance, we have
@@ -33,9 +33,9 @@
 \begin{proof}
     Let S denotes the entire state set .
     \begin{align*}
-        |J(\pi^\star) - J(\pi_\theta)| = & |E_{p_{\pi^\star}(s_T)}r(s_T) - E_{p_{\pi_\theta}(s_T)}r(s_T)| \\
-        = & |\Sigma_{s_T \in S}(p_{\pi^\star}(s_T) - p_{\pi_\theta}(s_T)) \times r(s_T)| \\
-        \leq & max(r(s_T)) \times |p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)|
+        |J(\pi^\star) - J(\pi_\theta)| &= |E_{p_{\pi^\star}(s_T)}r(s_T) - E_{p_{\pi_\theta}(s_T)}r(s_T)| \\
+        &=  |\Sigma_{s_T \in S}(p_{\pi^\star}(s_T) - p_{\pi_\theta}(s_T)) \times r(s_T)| \\
+        &\leq  max(r(s_T)) \times |p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)|
     \end{align*}
     Recalled that $p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t) \leq 2T\epsilon$.
     It follows that $|J(\pi^\star) - J(\pi_\theta)| \leq R_{max}\times 2T\epsilon$.
@@ -121,4 +121,115 @@ Varing \textbf{training batch size} from 100 to 1000 with step size 100, we get 
         \label{fig:ant_dagger}
     \end{subfigure}
 \end{figure}
+
+\problem{5.1}
+\begin{proof}
+    Let $C_{t,n}$ denote $C(\widetilde{\pi}^n)$ with horizon $T$.
+    $C_{0,n} = 0 \leq A(0,n) = 0$; $C_{T, 0} = C(\pi^{\star}) \leq A(T,0) = 0$.
+
+    Assume that for all $t+n \leq k$ we have $C_{t,n} \leq A(t,n)$.
+    For $t_1+n_1 = k+1$, consider $\widetilde{\pi}^n = S_{X_{n}}(\hat{\pi}^n, \widetilde{\pi}^{n-1})$ where $X_n+1~Geom(1-\alpha)$:
+
+    \begin{enumerate}
+        \item $X_n = 0(Pr = 1-\alpha)$:
+            The policy imedietely switch to $\widetilde{\pi}^{n-1}$ with $C_{t, n-1}$. By our assumption, the cost is
+            $$
+            \mathbb{E}[C_{t, n} | X_n = 0] = (1-\alpha)\times A(t, n-1)
+            $$
+        \item $X_n \geq1(Pr = \alpha)$:
+            The policy gives action to the first step with $\epsilon$ probability of failing. 
+            
+            If the policy fails the first step, the whole trajectory's error is up to 
+            $$
+            \mathbb{E}[C_{t, n} | X_n \geq 1 , \text{fails on step 1}] \leq \alpha \epsilon T
+            $$
+            If the policy succeeds on the first step, it matches the expert's action at step 1. For the remaining t-1 steps, 
+            the policy becomes $S^{X_n-1}(\hat{\pi}^n, \widetilde{\pi}^{n-1})$ because the memoryless property of Geometric 
+            Distribution: the Distribution of $X_{n} - 1$ is identical to $X_{n}$ given $X_{n} \geq 1$. So the cost is
+            $$
+            \mathbb{E}[C_{t,n} | X_n \geq 1, \text{succeeds on step 1}] \leq \alpha \times (1-\epsilon) A(t-1, n)
+            $$
+        \end{enumerate}
+        Adding up all the costs we got:
+        $$
+        C_{t, n} \leq \alpha\epsilon T + \alpha(1-\epsilon)A(t-1,n) + (1-\alpha)A(t, n-1) = A(t,n)
+        $$
+        Let $T$ equals to $t$, we concluded:
+        $$
+        C(\widetilde{\pi}^{n}) \leq A(T,n)
+        $$
+\end{proof}
+
+\problem{5.2}
+\begin{proof}
+    We proof by induction.
+    \begin{enumerate}
+        \item Basic conditions: \\
+            1. $t = 0$: $A(0, n) = 0 \leq 0 \times n\alpha\epsilon$\\
+            2. $n = 0$: $A(t, 0) = 0 \leq 0 \times t\alpha\epsilon$
+        \item Assumption: \\
+            For any $t+n \leq k$, $A(t, n) \leq Tn\alpha\epsilon$.
+        \item Induction: \\
+            For any $t + n \leq k+1$,
+            \begin{align*}                
+                C_{t, n} &\leq A(t, n) \\
+                &= \alpha\epsilon t + \alpha(1 - \epsilon)A(t-1, n) + (1-\alpha)A(t, n-1)
+            \end{align*}
+            Substituding assumption:
+            \begin{align*}
+                A(t, n) &\leq \alpha\epsilon t + \alpha (1 - \epsilon)(t-1)n\alpha\epsilon + (1-\alpha)t(n-1)\alpha\epsilon \\
+                &=\alpha\epsilon\times(t+n\alpha(t-1-\epsilon t + \epsilon) + t(n - 1-\alpha n + \alpha)) \\
+                &=\alpha\epsilon\times(t+tn\alpha-n\alpha-tn\alpha\epsilon+n\alpha\epsilon+tn - t - tn\alpha + t\alpha) \\
+                &=\alpha\epsilon\times(n\alpha\epsilon - n\alpha - tn\alpha\epsilon+ tn + t\alpha) \\
+            \end{align*}
+            Ignore the scale term $\alpha\epsilon$, we get
+            \begin{align*}
+                &n\alpha\epsilon - n\alpha - tn\alpha\epsilon + tn + t\alpha \\
+                =&tn + \alpha \times ((t - n) + (1-t)n\epsilon)
+            \end{align*}
+            In switchDagger, we let $n \geq t \geq 1$. And then $t-n \leq 0$, $1-t \leq 0$.
+            Hence, we conclude:
+            $$
+            C(\widetilde{\pi}^{n}) = C_{T, n} \leq A(T, n) \leq Tn\alpha\epsilon
+            $$
+            as we desired.
+    \end{enumerate}
+\end{proof}
+
+\problem{5.3}
+\begin{proof}
+    First, for any policy $\pi$, 
+    $
+    C(\pi) \leq 
+    \Sigma_{t=1}^T max\mathbb{E}_{s_t \sim p_{\pi}}Pr[\pi(s_t) \ne\pi^{\star}(s_t)]
+    \leq T
+    $.
+    $\pi^n$ is policy that transfer control from $\widetilde{\pi}^{n}$ to expert policy 
+    $\pi^{\star}$ at step $X^{\star}$. If $X^{\star} \geq T$, $\pi^n = \widetilde{\pi}^n$.
+    Hence, 
+    \begin{align*}
+        C(\pi^n) - C(\widetilde{\pi}^n) &\leq Pr[X^{\star} \leq T] \times T \\
+        &=e^{\frac{-n}{(1-\alpha)T}} \times T
+    \end{align*}
+    It follows that
+    $$
+    C(\pi^n) \leq C(\widetilde{\pi}^n) + e^{\frac{-n}{(1-\alpha)T}} T
+    $$
+    as we desired.
+\end{proof}
+
+\problem{5.4}
+In summary we get the upper bound of policy:
+$$
+C(\pi^N) \leq TN\alpha\epsilon + e^{\frac{-n}{(1-\alpha)T}} T
+$$
+Let $\alpha = 1/T$ and $N = T log(1/\epsilon)$.Substituding into the formula:
+$$
+C(\pi^N) \leq T\epsilon log(1/\epsilon) + T \epsilon^{T/(T-1)} = \mathcal{O}(T\epsilon(log(1/\epsilon + 1)))
+$$
+Therefore:
+$$
+C(\pi^N)  = \mathcal{O}(T\epsilon log(1/\epsilon))
+$$
+as we desired.
 \end{document}
