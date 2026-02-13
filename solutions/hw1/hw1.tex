@@ -1,0 +1,234 @@
+\documentclass[name={Jianxun Zhou}, andrewid={zhou-jx23}, course={cs285}, num={1}]{homework}
+
+\usepackage{hw-shortcuts}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\begin{document}
+\problem{1.1}
+\begin{proof}
+    By the definition of total variation distance, we have
+    $$
+    \sum_{s_{t}}|p_{\pi_{\theta}}(s_t) - p_{\pi^\star}(s_t)| = 2\times d_{TV}(p_{\pi_\theta}, p_{\pi^\star})
+    $$
+    Let $M_i$ denote the event the learned policy $\pi_{\theta}$ makes a mistake at step i and makes no mistake in i-1 steps.
+    Let $E_t$ denote the event the learned policy $\pi_{\theta}$ makes at least one mistake in t steps.
+    It follows that 
+    $$
+    Pr(E_t) = \Pr(\bigcup_{i=0\dots t} (M_i)) \leq \bigcup_{i=0\dots t} \Pr(M_i) \leq \bigcup_{i=0\dots T}\Pr(M_i) \leq T\epsilon
+    $$
+    By the coupling lemma, the distance of state distributions at time t is bounded by the probability that the two trajectories have diverged by that time:
+    $$
+    d_{TV}(p_{\pi_\theta}, p_{\pi^\star}) \leq \Pr(E_t) \leq T\epsilon
+    $$
+    Hence
+    $$
+    \sum_{s_{t}}|p_{\pi_{\theta}}(s_t) - p_{\pi^\star}(s_t)| \leq 2T\epsilon
+    $$
+    as we desired.
+\end{proof}
+\problem{1.2.a}
+\begin{proof}
+    Let S denote the entire state space .
+    \begin{align*}
+        |J(\pi^\star) - J(\pi_\theta)| &= |\mathbb{E}_{p_{\pi^\star}(s_T)}r(s_T) - \mathbb{E}_{p_{\pi_\theta}(s_T)}r(s_T)| \\
+        &=  |\sum_{s_T \in S}(p_{\pi^\star}(s_T) - p_{\pi_\theta}(s_T)) \times r(s_T)| \\
+        &\leq   max(r(s_T)) \times |p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)|
+    \end{align*}
+    Recall that $p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t) \leq 2T\epsilon$.
+    It follows that $|J(\pi^\star) - J(\pi_\theta)| \leq R_{max}\times 2T\epsilon$.
+    
+    Hence 
+    $$
+        J(\pi^\star) - J(\pi_\theta) = \mathcal{O} (T\epsilon)
+    $$
+    as we desired.
+\end{proof}
+\problem{1.2.b}
+\begin{proof}
+    \begin{align*}
+    |J(\pi^\star) - J(\pi_\theta)| &= |\sum_{t=1}^{T}\sum(r(s_t)\times(p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)))| \\
+    &\leq \sum_{t=1}^{T}R_{max}|p_{\pi^\star}(s_t) - p_{\pi_\theta}(s_t)| \\
+    &\leq T\times R_{max} \times 2T\epsilon
+    \end{align*}
+    Hence
+    $$
+    J(\pi^\star) - J(\pi_\theta) = \mathcal{O}(T^2\epsilon)
+    $$
+    as we desired.
+\end{proof}
+
+\problem{2}
+Not applicable.
+\problem{3.1}
+Both \textbf{Ant-v4} and \textbf{Hopper-v4} are trained with \texttt{n-layers=2,net-size=64,eval-batch-size=10000 and others parameters are kept at their defaults}.
+Their performance ratios compared to expert are as follows.
+
+\begin{table}[H]
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+environment&avg.ret&std.ret&avg.ret.exp&perf ratio \\
+\midrule
+\textbf{Ant-v4}&4430&780.6&4682&94.62\% \\
+\textbf{Hopper-v4}&1098&7.242&3718&29.53\% \\
+\bottomrule
+\end{tabularx}
+\caption{\textbf{Ant-v4} vs. \textbf{Hopper-v4}}
+\end{table}  
+\problem{3.2}
+Varying \textbf{training batch size} from 100 to 1000 with step size 100, Figure \ref{fig:bc_trend} illustrates the performance of \textbf{Hopper-v4} as a function of training batch size.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXXX}
+        \toprule
+        train\_batch\_size & avg. ret & std. ret & avg. ret. exp & perf ratio \\
+        \midrule
+        100  & 1099   & 12.6   & 3718 & 29.56\% \\
+        200  & 1199   & 26.82  & 3718 & 32.25\% \\
+        300  & 869.3  & 34.59  & 3718 & 23.38\% \\
+        400  & 1221   & 21.77  & 3718 & 32.84\% \\
+        500  & 1349   & 149.1  & 3718 & 36.28\% \\
+        600  & 1727   & 381.1  & 3718 & 46.45\% \\
+        700  & 1308   & 54.33  & 3718 & 35.18\% \\
+        800  & 1505   & 302.5  & 3718 & 40.48\% \\
+        900  & 1501   & 439.6  & 3718 & 40.37\% \\
+        1000 & 1333   & 87.06  & 3718 & 35.85\% \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Behavioral Cloning Performance Varying Training Batch Size On Hopper-v4}
+\end{table}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./images/bc_trend_hopper.png}
+    \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Batch Size} On \textbf{Hopper-v4}\\(size=64,n\_layers=2,eval\_batch\_size=10000)}
+    \label{fig:bc_trend}
+\end{figure}
+
+\problem{4.1}
+\begin{figure}[H]
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/hopper_dagger.png}
+        \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Step} On \textbf{Hopper-v4}(size=64,n\_layers=2,eval\_batch\_size=10000)}
+        \label{fig:hopper_dagger}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/ant_dagger.png}
+        \caption{\centering \small \textbf{Mean Return} vs. \textbf{Training Step} On \textbf{Ant-v4}(size=64,n\_layers=2,eval\_batch\_size=10000)}
+        \label{fig:ant_dagger}
+    \end{subfigure}
+\end{figure}
+
+\problem{5.1}
+\begin{proof}
+    Let $C_{t,n}$ denote $C(\widetilde{\pi}^n)$ with horizon $T$.
+    $C_{0,n} = 0 \leq A(0,n) = 0$; $C_{T, 0} = C(\pi^{\star}) \leq A(T,0) = 0$.
+
+    Assume that for all $t+n \leq k$ we have $C_{t,n} \leq A(t,n)$.
+    For $t_1+n_1 = k+1$, consider $\widetilde{\pi}^n = S_{X_{n}}(\hat{\pi}^n, \widetilde{\pi}^{n-1})$ where $X_n+1~Geom(1-\alpha)$:
+
+    \begin{enumerate}
+        \item $X_n = 0(\Pr = 1-\alpha)$:
+            The policy immediately switches to $\widetilde{\pi}^{n-1}$ with $C_{t, n-1}$. By our assumption, the cost is
+            $$
+            \mathbb{E}[C_{t, n} | X_n = 0] = (1-\alpha)\times A(t, n-1)
+            $$
+        \item $X_n \geq1(\Pr = \alpha)$:
+            The policy acts at the first step with $\epsilon$ probability of failing. 
+            
+            If the policy fails the first step, the error for the entire trajectory is bounded by 
+            $$
+            \mathbb{E}[C_{t, n} | X_n \geq 1 , \text{fails on step 1}] \leq \alpha \epsilon T
+            $$
+            If the policy succeeds on the first step, it matches the expert's action at step 1. For the remaining t-1 steps, 
+            the policy becomes $S^{X_n-1}(\hat{\pi}^n, \widetilde{\pi}^{n-1})$ because the memoryless property of Geometric 
+            Distribution: the Distribution of $X_{n} - 1$ is identical to $X_{n}$ given $X_{n} \geq 1$. So the cost is
+            $$
+            \mathbb{E}[C_{t,n} | X_n \geq 1, \text{succeeds on step 1}] \leq \alpha \times (1-\epsilon) A(t-1, n)
+            $$
+        \end{enumerate}
+        Adding up all the costs we got:
+        $$
+        C_{t, n} \leq \alpha\epsilon T + \alpha(1-\epsilon)A(t-1,n) + (1-\alpha)A(t, n-1) = A(t,n)
+        $$
+        Setting $T = t$, we concluded:
+        $$
+        C(\widetilde{\pi}^{n}) \leq A(T,n)
+        $$
+\end{proof}
+
+\problem{5.2}
+\begin{proof}
+    We prove by induction.
+    \begin{enumerate}
+        \item Base cases: \\
+            1. $t = 0$: $A(0, n) = 0 \leq 0 \times n\alpha\epsilon$\\
+            2. $n = 0$: $A(t, 0) = 0 \leq 0 \times t\alpha\epsilon$
+        \item Inductive hypothesis: \\
+            For any $t+n \leq k$, $A(t, n) \leq Tn\alpha\epsilon$.
+        \item Induction: \\
+            For any $t + n \leq k+1$,
+            \begin{align*}                
+                C_{t, n} &\leq A(t, n) \\
+                &= \alpha\epsilon t + \alpha(1 - \epsilon)A(t-1, n) + (1-\alpha)A(t, n-1)
+            \end{align*}
+            Apply the inductive hypothesis:
+            \begin{align*}
+                A(t, n) &\leq \alpha\epsilon t + \alpha (1 - \epsilon)(t-1)n\alpha\epsilon + (1-\alpha)t(n-1)\alpha\epsilon \\
+                &=\alpha\epsilon\times(t+n\alpha(t-1-\epsilon t + \epsilon) + t(n - 1-\alpha n + \alpha)) \\
+                &=\alpha\epsilon\times(t+tn\alpha-n\alpha-tn\alpha\epsilon+n\alpha\epsilon+tn - t - tn\alpha + t\alpha) \\
+                &=\alpha\epsilon\times(n\alpha\epsilon - n\alpha - tn\alpha\epsilon+ tn + t\alpha) \\
+            \end{align*}
+            Ignore the scale term $\alpha\epsilon$, we get
+            \begin{align*}
+                &n\alpha\epsilon - n\alpha - tn\alpha\epsilon + tn + t\alpha \\
+                =&tn + \alpha \times ((t - n) + (1-t)n\epsilon)
+            \end{align*}
+            In switchDagger, we let $n \geq t \geq 1$. And then $t-n \leq 0$, $1-t \leq 0$.
+            Hence, we conclude:
+            $$
+            C(\widetilde{\pi}^{n}) = C_{T, n} \leq A(T, n) \leq Tn\alpha\epsilon
+            $$
+            as we desired.
+    \end{enumerate}
+\end{proof}
+
+\problem{5.3}
+\begin{proof}
+    First, for any policy $\pi$, 
+    $
+    C(\pi) \leq 
+    \sum_{t=1}^T \max\mathbb{E}_{s_t \sim p_{\pi}}\Pr[\pi(s_t) \ne\pi^{\star}(s_t)]
+    \leq T
+    $.
+    $\pi^n$ is policy that transfers control from $\widetilde{\pi}^{n}$ to expert policy 
+    $\pi^{\star}$ at step $X^{\star}$. If $X^{\star} \geq T$, $\pi^n = \widetilde{\pi}^n$.
+    Hence, 
+    \begin{align*}
+        C(\pi^n) - C(\widetilde{\pi}^n) &\leq \Pr[X^{\star} \leq T] \times T \\
+        &=e^{\frac{-n}{(1-\alpha)T}} \times T
+    \end{align*}
+    It follows that
+    $$
+    C(\pi^n) \leq C(\widetilde{\pi}^n) + e^{\frac{-n}{(1-\alpha)T}} T
+    $$
+    as we desired.
+\end{proof}
+
+\problem{5.4}
+In summary we get the upper bound of policy:
+$$
+C(\pi^N) \leq TN\alpha\epsilon + e^{\frac{-n}{(1-\alpha)T}} T
+$$
+Let $\alpha = 1/T$ and $N = T log(1/\epsilon)$.Substituting into the formula:
+$$
+C(\pi^N) \leq T\epsilon log(1/\epsilon) + T \epsilon^{T/(T-1)} = \mathcal{O}(T\epsilon(log(1/\epsilon + 1)))
+$$
+Therefore:
+$$
+C(\pi^N)  = \mathcal{O}(T\epsilon log(1/\epsilon))
+$$
+as we desired.
+\end{document}
