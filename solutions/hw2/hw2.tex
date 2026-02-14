@@ -1,0 +1,124 @@
+\documentclass[name={Jianxun Zhou}, andrewid={zhou-jx23}, course={cs285}, num={2}]{homework}
+
+\usepackage{hw-shortcuts}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+\begin{document}
+\experiment{1}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{./images/exp1_cartpole.png}
+    \caption{\centering \small \textbf{Eval Return} vs. \textbf{Env Steps}}
+    \label{fig:Eval_Return_Compare}
+\end{figure}
+1. Without \textbf{advantage normalization}, the \textbf{reward-to-go} 
+   value estimator performs better that the \textbf{trajectory-centric} one.
+
+2. \textbf{advantage normalization} help the policy to achieve the same 
+   performance in \textbf{less environment step}.
+
+3. Actually the training with \textbf{larger batch size} achieves the same 
+    performance in \textbf{more environment steps} but \textbf{less training 
+    iteration steps}.
+    
+4. The command line configuration i use is totally the same as the one given 
+   in homework document.
+
+\newpage
+
+\experiment{2}
+1. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{./images/exp2_1_baseline_blr01.png}
+    \caption{\centering \small \textbf{Baseline Loss} vs. \textbf{Env Steps} with baseline learning rate=0.01}
+    \label{fig: Baseline_blr0.01}
+\end{figure}
+2. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{./images/exp2_3_return_vs_vanilla.png}
+    \caption{\centering \small \textbf{Average Return} vs. \textbf{Env Steps} with baseline learning rate=0.01}
+    \label{fig:Baseline_Return_Compare}
+\end{figure}
+3. 
+
+\begin{figure}[H]
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/exp2_2_baseline_compare.png}
+        \caption{\centering \small Baseline Loss with different baseline learning rate}
+        \label{fig:baseline_value_compare}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{./images/exp2_4_return_two_blr.png}
+        \caption{\centering \small Baseline Return with different baseline learning rate}
+        \label{fig:baseline_return_compare}
+    \end{subfigure}
+Compared to \textbf{baseline learning rate = 0.01}, training with \textbf{baseline learning rate 0.001}
+causes slower \textbf{baseline loss converging} and slower /textbf{average return increasing}.
+\end{figure}
+
+\experiment{3}
+1. 
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.88\textwidth]{./images/exp3_return.png}
+        \caption{\centering \small \textbf{Average Return} vs. \textbf{Env Steps} with different GAE lambda}
+        \label{fig:GAE_lambda}
+    \end{figure}
+    Increasing $\lambda$ makes the policy to perform better, but too big $\lambda$
+    makes the training unstable in the later stage.
+
+2.  $\lambda = 0$ correspond to $\hat{A}(s_t, a_t) = r(s_t, a_t) + \gamma \hat{V}(s_{t+1}) - \hat{A}(s_t)$, 
+    which means we totally use prediction from critic as the estimation of state value. In the beginning
+    if our training, the critic prediction is totally biased, which causes the low performance of 
+    the policy. But the prediction of critic network has low variance, which lead to lower oscillation.
+
+    $\lambda = 1$ correspond to $\hat{A}(s_t, a_t) = \sum_{t' = t}^{T}\gamma^{t'-t}r(s_{t'}, a_{t'}) - 
+    \hat{V}(s_t)$, which means we totally use the following steps' rewards from environment to estimate
+    the advantage of $a_t$. This causes high variance because every step is stocastic but unbiased.
+
+    In the figure \ref{fig:GAE_lambda}, the blue curve($\lambda=0$)'s $eval\_return$ struggles near $-100$ 
+    because of huge bias caused by predicting the value totally. And other four curves obviously perform 
+    better than the blue one. However, due to the high variance from stocastic step reward, sometimes the 
+    return falls down violently.
+    
+\experiment{4}
+1. \textbf{Hyperparameters}
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{0.5\textwidth}{lr}
+        \toprule
+        \textbf{parameter}&\textbf{value} \\
+        \midrule
+        iteration&100 \\
+        batch size&500 \\
+        \midrule
+        learning rate&0.01 \\
+        discount&0.99 \\
+        GAE lambda&0.98 \\
+        reward to go&true \\
+        \midrule
+        use baseline&true \\
+        baseline learning rate&0.01 \\
+        baseline gradient steps&5 \\
+        \midrule
+        n layers&2 \\
+        layer size&64 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Hyperparameters}
+\end{table}
+2. \textbf{Return Curves}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{./images/comparison_plot.png}
+    \caption{Eval Average Return-Env Steps(default VS. self-define)}
+    \label{fig:hyperparam_tuning}
+\end{figure}
+\end{document}
