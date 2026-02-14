@@ -89,5 +89,36 @@ causes slower \textbf{baseline loss converging} and slower /textbf{average retur
     return falls down violently.
     
 \experiment{4}
-
+1. \textbf{Hyperparameters}
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{0.5\textwidth}{lr}
+        \toprule
+        \textbf{parameter}&\textbf{value} \\
+        \midrule
+        iteration&100 \\
+        batch size&500 \\
+        \midrule
+        learning rate&0.01 \\
+        discount&0.99 \\
+        GAE lambda&0.98 \\
+        reward to go&true \\
+        \midrule
+        use baseline&true \\
+        baseline learning rate&0.01 \\
+        baseline gradient steps&5 \\
+        \midrule
+        n layers&2 \\
+        layer size&64 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Hyperparameters}
+\end{table}
+2. \textbf{Return Curves}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{./images/comparison_plot.png}
+    \caption{Eval Average Return-Env Steps(default VS. self-define)}
+    \label{fig:hyperparam_tuning}
+\end{figure}
 \end{document}
