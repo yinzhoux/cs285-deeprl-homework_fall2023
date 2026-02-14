@@ -15,13 +15,13 @@
     \label{fig:Eval_Return_Compare}
 \end{figure}
 1. Without \textbf{advantage normalization}, the \textbf{reward-to-go} 
-   value estimator performs better that the \textbf{trajectory-centric} one.
+   value estimator performs better than the \textbf{trajectory-centric} one.
 
-2. \textbf{advantage normalization} help the policy to achieve the same 
-   performance in \textbf{less environment step}.
+2. \textbf{advantage normalization} helps the policy to achieve the same 
+   performance in \textbf{fewer environment step}.
 
-3. Actually the training with \textbf{larger batch size} achieves the same 
-    performance in \textbf{more environment steps} but \textbf{less training 
+3. In fact, the training with a \textbf{larger batch size} achieves the same 
+    performance in \textbf{more environment steps} but \textbf{fewer training 
     iteration steps}.
     
 4. The command line configuration i use is totally the same as the one given 
@@ -60,7 +60,7 @@
         \label{fig:baseline_return_compare}
     \end{subfigure}
 Compared to \textbf{baseline learning rate = 0.01}, training with \textbf{baseline learning rate 0.001}
-causes slower \textbf{baseline loss converging} and slower /textbf{average return increasing}.
+causes slower \textbf{baseline loss convergence} and a slower increase in \textbf{average return}.
 \end{figure}
 
 \experiment{3}
@@ -71,22 +71,24 @@ causes slower \textbf{baseline loss converging} and slower /textbf{average retur
         \caption{\centering \small \textbf{Average Return} vs. \textbf{Env Steps} with different GAE lambda}
         \label{fig:GAE_lambda}
     \end{figure}
-    Increasing $\lambda$ makes the policy to perform better, but too big $\lambda$
-    makes the training unstable in the later stage.
+    While increasing $\lambda$ generally improves policy performance, an excessively large $\lambda$ leads
+    to instabilities in the later stages of training.
 
 2.  $\lambda = 0$ correspond to $\hat{A}(s_t, a_t) = r(s_t, a_t) + \gamma \hat{V}(s_{t+1}) - \hat{A}(s_t)$, 
-    which means we totally use prediction from critic as the estimation of state value. In the beginning
-    if our training, the critic prediction is totally biased, which causes the low performance of 
-    the policy. But the prediction of critic network has low variance, which lead to lower oscillation.
+    which means we totally use prediction from critic as the estimation of state value. At the beginning of 
+    training, the critic's predictions are \textbf{highly biased}, which leads to \textbf{suboptimal} policy 
+    performance. However, because the critic's predictions have \textbf{low variance}, the resulting training 
+    curves exhibit fewer oscillations.
 
     $\lambda = 1$ correspond to $\hat{A}(s_t, a_t) = \sum_{t' = t}^{T}\gamma^{t'-t}r(s_{t'}, a_{t'}) - 
     \hat{V}(s_t)$, which means we totally use the following steps' rewards from environment to estimate
-    the advantage of $a_t$. This causes high variance because every step is stocastic but unbiased.
+    the advantage of $a_t$. This causes high variance since the estimate is based on the sum of actual 
+    rewards, it is unbiased but suffers from high variance due to the stochasticity of the environment.
 
     In the figure \ref{fig:GAE_lambda}, the blue curve($\lambda=0$)'s $eval\_return$ struggles near $-100$ 
-    because of huge bias caused by predicting the value totally. And other four curves obviously perform 
-    better than the blue one. However, due to the high variance from stocastic step reward, sometimes the 
-    return falls down violently.
+    because of huge bias caused by estimating the value totally depend on critic. And other four curves 
+    obviously perform better than the blue one. However, due to the high variance from stochastic step reward
+    from environment, sometimes the return falls down violently.
     
 \experiment{4}
 1. \textbf{Hyperparameters}
@@ -94,7 +96,7 @@ causes slower \textbf{baseline loss converging} and slower /textbf{average retur
     \centering
     \begin{tabularx}{0.5\textwidth}{lr}
         \toprule
-        \textbf{parameter}&\textbf{value} \\
+        \textbf{Parameter}&\textbf{Value} \\
         \midrule
         iteration&100 \\
         batch size&500 \\
