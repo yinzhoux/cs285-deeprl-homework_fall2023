@@ -7,7 +7,7 @@
 \usepackage{subcaption}
 
 \begin{document}
-\experiment{1}
+\section{Experiment 1: Policy Gradient}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{./images/exp1_cartpole.png}
@@ -29,23 +29,22 @@
 
 \newpage
 
-\experiment{2}
-1. 
+\section{Experiment 2: Neural Network Baseline}
+\subsection{Baseline Loss}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./images/exp2_1_baseline_blr01.png}
     \caption{\centering \small \textbf{Baseline Loss} vs. \textbf{Env Steps} with baseline learning rate=0.01}
     \label{fig: Baseline_blr0.01}
 \end{figure}
-2. 
+\subsection{Return Comparison}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./images/exp2_3_return_vs_vanilla.png}
     \caption{\centering \small \textbf{Average Return} vs. \textbf{Env Steps} with baseline learning rate=0.01}
     \label{fig:Baseline_Return_Compare}
 \end{figure}
-3. 
-
+\subsection{Baseline Learning Rate Comparison}
 \begin{figure}[H]
     \begin{subfigure}{0.48\textwidth}
         \centering
@@ -63,8 +62,8 @@ Compared to \textbf{baseline learning rate = 0.01}, training with \textbf{baseli
 causes slower \textbf{baseline loss convergence} and a slower increase in \textbf{average return}.
 \end{figure}
 
-\experiment{3}
-1. 
+\section{Experiment 3: Generalized Advantage Estimation}
+\subsection{Return Curves} 
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.88\textwidth]{./images/exp3_return.png}
@@ -73,8 +72,8 @@ causes slower \textbf{baseline loss convergence} and a slower increase in \textb
     \end{figure}
     While increasing $\lambda$ generally improves policy performance, an excessively large $\lambda$ leads
     to instabilities in the later stages of training.
-
-2.  $\lambda = 0$ correspond to $\hat{A}(s_t, a_t) = r(s_t, a_t) + \gamma \hat{V}(s_{t+1}) - \hat{A}(s_t)$, 
+\subsection{Analysis Lambda}
+    $\lambda = 0$ correspond to $\hat{A}(s_t, a_t) = r(s_t, a_t) + \gamma \hat{V}(s_{t+1}) - \hat{A}(s_t)$, 
     which means we totally use prediction from critic as the estimation of state value. At the beginning of 
     training, the critic's predictions are \textbf{highly biased}, which leads to \textbf{suboptimal} policy 
     performance. However, because the critic's predictions have \textbf{low variance}, the resulting training 
@@ -90,8 +89,8 @@ causes slower \textbf{baseline loss convergence} and a slower increase in \textb
     obviously perform better than the blue one. However, due to the high variance from stochastic step reward
     from environment, sometimes the return falls down violently.
     
-\experiment{4}
-1. \textbf{Hyperparameters}
+\section{Experiment 4: Hyperparameters and Sample Efficiency}
+\subsection{4.1 Hyperparameters}
 \begin{table}[H]
     \centering
     \begin{tabularx}{0.5\textwidth}{lr}
@@ -116,7 +115,7 @@ causes slower \textbf{baseline loss convergence} and a slower increase in \textb
     \end{tabularx}
     \caption{Hyperparameters}
 \end{table}
-2. \textbf{Return Curves}
+\subsection{4.2 Return Curves}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.98\textwidth]{./images/comparison_plot.png}
