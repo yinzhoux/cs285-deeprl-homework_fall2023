@@ -123,4 +123,107 @@ causes slower \textbf{baseline loss convergence} and a slower increase in \textb
     \caption{Eval Average Return-Env Steps(default VS. self-define)}
     \label{fig:hyperparam_tuning}
 \end{figure}
+
+\section{Analysis}
+\subsection{Apply policy gradients}
+a. 
+\begin{align*}
+\nabla _{\theta} J(\theta) &= \mathbb{E}_{\tau \sim p_{\theta}(\tau)}[\nabla_{\theta}\log P_\theta(\tau) r(\tau)] \\
+&= \sum_{k=1}^{\infty}\theta^{k-1}(1-\theta) \cdot \left(\frac{k}{\theta} - \frac{1}{1-\theta}\right) \cdot k \\
+&= (1 - \theta) \sum_{k=1}^{\infty} k^2\theta^{k-1} - \theta\sum_{k=1}^{\infty}k\theta^{k-1} \\
+&= (1 - \theta) \cdot \frac{1+\theta}{(1-\theta)^{3}} - \theta \cdot \frac{1}{(1-\theta)^2} \\
+&= \frac{1}{(1-\theta)^2}
+\end{align*}
+b. Calculate $J(\theta) = \mathbb{E}_{\pi_{\theta}}[R(\tau)]$ recursively.
+\begin{align*}
+J(\theta) = \theta \cdot (1 + J(\theta)) + (1 - \theta) \cdot 0 \\
+\Rightarrow J(\theta) = \frac{\theta}{1 - \theta}
+\end{align*}
+Differentiate with respect to $\theta$:
+$$
+\nabla_\theta J(\theta) = \frac{1}{(1-\theta)^2}
+$$
+This matches the result from the direct calculation.
+
+\subsection{Policy gradient variance}
+\begin{align*}
+    \mathbb{E}[(\nabla_\theta J(\theta))^2] &= \sum _{k=1}^{\infty}\theta^{k-1}(1-\theta) \cdot \left[\left(\frac{k}{\theta} - \frac{1}{1-\theta}\right)k\right]^2 \\
+    &= \sum_{k=1}^{\infty} \left(\frac{k^4}{\theta^2} + \frac{k^2}{(1-\theta)^2} - \frac{2k^3}{\theta(1-\theta)}\right) \theta^{k-1}(1-\theta) \\
+    &= \frac{1-\theta}{\theta^2}\sum_{k=1}^{\infty}k^4\theta^{k-1} + \frac{1}{1-\theta}\sum_{k=1}^{\infty}k^2\theta^{k-1} - \frac{2}{\theta} \sum_{k=1}^{\infty}k^3\theta^{k-1} \\
+    &= \dots \\
+    &= \frac{1 + 9\theta + 4 \theta^2}{\theta(1-\theta)^4}
+\end{align*}
+Note: The intermediate steps involve calculating sums of the form $\sum k^n x^k$. After simplification (omitted for brevity), we arrive at the variance term.
+
+From equation $Var(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$:
+\begin{align*}
+    Var[\nabla_{\theta}J(\theta)] &= \mathbb{E}[(\nabla_{\theta}J(\theta))^2] - (\mathbb{E}[\nabla_{\theta}J(\theta)])^2 \\
+    &= \frac{1 + 9\theta + 4 \theta^2}{\theta(1-\theta)^4} - \left(\frac{1}{(1-\theta)^2}\right)^2 \\
+    &= \frac{1 + 9\theta + 4 \theta^2 -\theta}{\theta(1-\theta)^4}\\
+    &= \frac{4\theta^2+8\theta+1}{\theta(1-\theta)^4}
+\end{align*}
+
+\subsection{Apply reward-to-go}
+a. 
+For a trajectory with horizon $k$, the reward-to-go of step $t$ is $(k-t)$ if $t\leq k$ and $0$ if $t = k$.
+Let $G_{\tau_k}$ denote the policy gradient of trajectory with horizon $k$.
+\begin{align*}
+    G_{\tau_k} &= \sum_{t=0}^{k-1}\frac{1}{\theta}(k-t) + 0 \\
+    &= \sum_{t=0}^{k-1} \frac{k}{\theta} - \sum_{t=0}^{k-1}\frac{t}{\theta} \\
+    &= \frac{k(k-1)}{2\theta}
+\end{align*}
+Expectation of $G_{\tau_k}$:
+\begin{align*}
+    \nabla_{\theta}J(\theta) &= \sum_{k=1}^{\infty}G_{\tau_k} \cdot \theta^{k-1}(1-\theta) \\
+    &= \frac{1-\theta}{2} \sum_{k=1}^{\infty}k(k-1)\theta^{k-2} \\
+    &= \frac{1-\theta}{2}\frac{d^2}{d\theta^2} \sum_{k=1}^{\infty}\theta^k \\
+    &= \frac{1-\theta}{2}\frac{d^2}{d\theta^2}\frac{\theta}{1-\theta} \\
+    &= \frac{1-\theta}{2} \frac{2(1-\theta)}{(1-\theta)^4} \\
+    &= \frac{1}{(1-\theta)^2}
+\end{align*}
+This form matches the one without reward-to-go, confirming that reward-to-go estimator is unbiased.
+
+b. 
+With reward-to-go:
+\begin{align*}
+    \mathbb{E}[(\nabla_{\theta}J(\theta))^2] &= \sum_{k=1}^{\infty}\theta^{k-1}(1-\theta)\cdot \frac{k^2(k-1)^2}{4\theta^2} \\
+    &= \dots \\
+    &= \frac{1 + 4\theta + \theta^2}{\theta(1-\theta)^4}
+\end{align*}
+Variance:
+\begin{align*}
+    Var(\nabla_{\theta}J(\theta)) &= \frac{1 + 4\theta + \theta^2}{\theta(1-\theta)^4} - (\frac{1}{(1-\theta)^2})^2 \\
+    &= \frac{\theta^2 + 3\theta + 1}{\theta(1-\theta)^4}
+\end{align*}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.98\textwidth]{./images/var_compare.png}
+    \caption{\textbf{Variance Comparison(reward-to-go VS. default)}}
+    \label{fig:var_cmp}
+\end{figure}
+\subsection{Importance Sampling}
+a. 
+Only the trajectory ending at $s_{H}$ contributes to the expectation of Policy Gradient.
+\begin{align*}
+    J(\theta) &= \mathbb{E}_{\tau \sim p_{\theta '(\tau)}}[\frac{p_\theta(\tau)}{p_{\theta '}(\tau)} r(\tau)] \\
+    &= \theta '^{H-1} \cdot (\frac{\theta}{\theta '})^{H-1} \cdot 1 \\
+    &= \theta^{H-1}
+\end{align*}
+Differentiate with respect to $\theta$:
+$$
+    \nabla_{\theta}J(\theta) = (H-1)\theta^{H-2}
+$$
+
+b. 
+\begin{align*}
+    \mathbb{E}[(\nabla_\theta J(\theta))^2] &= \theta '^{H-1}\cdot [(\frac{\theta}{\theta '})^{H-1} \cdot \frac{H-1}{\theta} \cdot 1]^2 \\
+    &= \frac{(H-1)^2 \cdot \theta^{2H-4}}{\theta '^{H-1}}
+\end{align*}
+Variance:
+\begin{align*}
+    Var[\nabla_\theta J(\theta)] &= \mathbb{E}[(\nabla_\theta J(\theta))^2] - \mathbb{E}^2[(\nabla_\theta J(\theta))] \\
+    &= (H-1)^2\theta^{2H-4}(\frac{1}{\theta '^{H-1}} - 1)
+\end{align*}
+
+As $H$ increases, the variance grows exponentially.
 \end{document}
