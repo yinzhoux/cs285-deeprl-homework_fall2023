@@ -1,0 +1,28 @@
+\documentclass[name={Jianxun Zhou}, andrewid={zhou-jx23}, course={cs285}, num={2}]{homework}
+
+\usepackage{hw-shortcuts}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\begin{document}
+\section{1 Multistep Q-Learning}
+\subsection{TD-Learning Bias}
+No.
+\subsection{Tabular Learning}
+True: \\
+1a3, 1b3, 2a3, 3a1, 3a3
+\subsection{Variance of Q Estimate}
+Highest Variance: $N \rightarrow \infty$ \\
+Lowest Variance: $N = 1$
+\subsection{Function Approximation}
+CD
+\subsection{Multistep Importance Sampling}
+$$
+\phi_{k+1} \leftarrow arg min_{\phi \in \Phi} 
+\sum_{j,t}(\frac{\pi(a_{j,t}|s_{j,t})}{\pi^{'} (a_{j,t}|s_{j,t})}
+(y_{i,t} - Q_{\phi}(s_{j,t}, a_{j,t})))^2
+$$
+No change when $N=1$. \\
+When $N \rightarrow \infty$, 3b3 is right.
+\end{document}
