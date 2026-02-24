@@ -1,6 +1,9 @@
 # Others
 Q&A/*
-
+data/
+logs*
+tensorboard_logs/
+.vscode/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
