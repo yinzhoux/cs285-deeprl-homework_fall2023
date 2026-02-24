@@ -7,6 +7,10 @@ import numpy as np
 
 import cs285.infrastructure.pytorch_util as ptu
 
+def assert_tensor_shape(shape, tensor):
+    assert tensor.shape == shape, f'{tensor.shape}'
+def assert_tensor_shape_eq(tensor1, tensor2):
+    assert tensor1.shape == tensor2.shape, f'{tensor1.shape} vs. {tensor2.shape}'
 
 class DQNAgent(nn.Module):
     def __init__(
@@ -73,23 +77,28 @@ class DQNAgent(nn.Module):
         # Compute target values
         with torch.no_grad():
             # TODO(student): compute target values
-            next_qa_values: torch.Tensor = self.critic(next_obs)
+            next_qa_values_target: torch.Tensor = self.target_critic(next_obs) # [batch size, action nums]
+            assert_tensor_shape((batch_size, self.num_actions), next_qa_values_target)
 
-            if self.use_double_q:
-                raise NotImplementedError
-            else:
+            if self.use_double_q: # select action from critic
+                next_qa_values = self.critic(next_obs)
                 _, next_action = next_qa_values.max(dim=-1)
-                next_action.unsqueeze_(dim=-1)
+            else: # select action from target critic
+                _, next_action = next_qa_values_target.max(dim=-1) # [batch size,]
+            
+            assert_tensor_shape((batch_size,), next_action)
+            next_action.unsqueeze_(dim=-1) # [batch_size, 1]
 
-            print(next_qa_values.shape, next_action.shape)
-            next_q_values = torch.gather(next_qa_values, 1, next_action)
-            target_values = reward + self.discount * next_q_values
+            next_q_values = torch.gather(next_qa_values_target, 1, next_action) # [batch size, 1]
+            next_q_values.squeeze_(dim=-1) # [batch size, ]
+            assert_tensor_shape_eq(reward, next_q_values)
+            target_values = reward + self.discount * next_q_values * (1 - done.float()) # [batch size, ]
 
         # TODO(student): train the critic with the target values
-        qa_values = self.critic(obs)
-        print(qa_values.shape, action.shape)
-        q_values = torch.gather(qa_values, 1, action.unsqueeze(dim=-1)) # Compute from the data actions; see torch.gather
-        loss = self.critic_loss(q_values, target_values)
+        qa_values = self.critic(obs) # [batch size, action nums]
+        q_values = torch.gather(qa_values, 1, action.unsqueeze(dim=-1)).squeeze_(dim=-1) # Compute from the data actions; see torch.gather
+        assert_tensor_shape_eq(q_values, target_values)
+        loss = self.critic_loss(q_values, target_values) # both [batch size, ]
 
         self.critic_optimizer.zero_grad()
         loss.backward()
@@ -124,6 +133,6 @@ class DQNAgent(nn.Module):
         """
         # TODO(student): update the critic, and the target if needed
         critic_stats = self.update_critic(obs, action, reward, next_obs, done)
-        if self.use_double_q and step % self.target_update_period == 0:
+        if step % self.target_update_period == 0:
             self.update_target_critic()
         return critic_stats
